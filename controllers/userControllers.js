@@ -4,7 +4,19 @@ export const loginPost = async (req, res) => {
   try {
     console.log('To Do Login Section');
     console.log(req.body);
-    return res.json(req.body);
+    const mail=req.body.name
+    const password=req.body.password
+    const existing=await User.findOne({mail:mail})
+    console.log(existing);
+    if(!existing){
+    return res.json({invalidUser:true})
+    }
+    const passwordMatch = await bcrypt.compare(password, existing.password)
+    if(!passwordMatch){
+      return res.json({passwordMissmatch:true})
+    }else{
+      return res.json({dashboard:true});
+    }
   } catch (error) {
     console.error('Error from login post page');
   }
@@ -35,3 +47,13 @@ export const signupPost = async (req, res) => {
     console.error('Error from signup post page',error);
   }
 };
+
+
+export const dashboardGet =async(req,res)=>{
+  try {
+      console.log("Dashboard");
+      return res.json({success:true})
+  } catch (error) {
+    console.error('Error from dashboardGet page',error);
+  }
+}
