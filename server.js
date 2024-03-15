@@ -1,14 +1,14 @@
-import express from "express";
+import express, { json } from "express";
 import cors from "cors"
+import usersRouter from "./routers/users.js"
 
 const app=express()
 const port=4000;
 
+
+app.use(express.json())
 app.use(cors())
-app.get("/login",(req,res) =>{
-    console.log("To Do Login Section");
-    res.send("Hello from node js")
-});
+app.use('/',usersRouter)
 
 app.listen(port,()=>{
     console.log(`Node server is running on ${port}`);
