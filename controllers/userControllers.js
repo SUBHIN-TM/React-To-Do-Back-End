@@ -73,7 +73,7 @@ export const dashboardGet = async (req, res) => {
 export const addTask = async (req, res) => {
   try {
     console.log("Task adding section ");
-    const { date, task, status } = req.body.tasks
+    const { date, task, status } = req.body.newTaskObjetc
      console.log(date, task, status);
     let addedTask={
       task:task,
@@ -86,22 +86,30 @@ export const addTask = async (req, res) => {
       return res.status(200).json({added:true})
     }
 
-
   } catch (error) {
     console.error('Error from addTask page', error);
   }
-
 }
 
 
-export const logout = async (req, res) => {
-  try {
-    console.log("Logout  section");
+export const deleteTask=async(req,res) =>{
+try {
+  const userId=req.token.id;
+  const taskId=req.params.id;
   
+  let response=await User.findOneAndUpdate(
+    {_id:userId},
+    {$pull :{datas:{_id:taskId}}},
+    {new:true} 
+    );
+    if(!response){
+      return res.status(400).json({failed:true})
+    }else{
+      return res.status(200).json({message:'Successfully Deleted'})
+    }
+   
 
-  } catch (error) {
-    console.error('Error from logout page', error);
-  }
-
+} catch (error) {
+  console.error('Error from deleteTask page', error);
 }
-
+}
