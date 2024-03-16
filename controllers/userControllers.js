@@ -1,6 +1,8 @@
 import User from '../models/userSchema.js';
 import bcrypt from 'bcrypt'
 import jwt from "jsonwebtoken"
+import env from "dotenv"
+env.config()
 
 export const loginPost = async (req, res) => {
   try {
@@ -19,8 +21,9 @@ export const loginPost = async (req, res) => {
     } else {
       console.log(existing);
        const payload={id:existing._id,name:existing.name,mail:existing.mail}
-     let token=  jwt.sign(payload,"todosecret",{expiresIn:'24h'})
-       console.log(token);
+       let key=process.env.JWT_KEY
+     let token=  jwt.sign(payload,key,{expiresIn:'24h'})
+      // console.log(token);
       return res.json({ dashboard: true ,token});
     }
   } catch (error) {
@@ -58,7 +61,10 @@ export const signupPost = async (req, res) => {
 export const dashboardGet = async (req, res) => {
   try {
     console.log("Dashboard");
-    return res.json({ success: true })
+    // console.log(req.token);
+    const {datas}=await User.findOne({mail:req.token.mail})
+    // console.log(datas);
+    return res.json({ success: true,name:req.token.name,datas })
   } catch (error) {
     console.error('Error from dashboardGet page', error);
   }
@@ -66,9 +72,20 @@ export const dashboardGet = async (req, res) => {
 
 export const addTask = async (req, res) => {
   try {
-    console.log("Task adding section");
+    console.log("Task adding section ");
     const { date, task, status } = req.body.tasks
-    console.log(date, task, status);
+     console.log(date, task, status);
+    let addedTask={
+      task:task,
+      status:status,
+      date:date
+    }
+    const taskAdded=await User.updateOne({mail:req.token.mail},{$push:{'datas':addedTask}})
+    console.log(taskAdded);
+    if(taskAdded.modifiedCount >0){
+      return res.status(200).json({added:true})
+    }
+
 
   } catch (error) {
     console.error('Error from addTask page', error);
