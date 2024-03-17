@@ -111,5 +111,31 @@ try {
 
 } catch (error) {
   console.error('Error from deleteTask page', error);
+  return res.status(500).json({message:'internal server error '})
 }
+}
+
+
+export const editTask=async(req,res)=>{
+  try {
+    console.log("edit section");
+    const taskId=req.params.id
+    const data=req.body.modifiedAndMerged
+    const userId=req.token.id
+   console.log( taskId,data,userId);
+   const result=await User.findOneAndUpdate(
+    {_id:userId,"datas._id":taskId},
+    {$set: {"datas.$":data}},
+    {new:true}
+   )
+  //  console.log(result);
+  if(!result){
+    return res.status(400).json({message:"cant perform edit  now"})
+  }else{
+    return res.status(200).json({message:"Successfully Updated"})
+  }
+  } catch (error) {
+    console.error('Error from edit task page', error);
+    return res.status(500).json({message:'internal server error '})
+  }
 }
